@@ -12,6 +12,7 @@ function findContact (id) {
 
 function deleteContact (id) {
   localStorage.removeItem(`${LOCAL_STORAGE.name}${id}`)
+  return getContacts()
 }
 
 function createContact ({ name, email, phone }) {

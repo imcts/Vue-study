@@ -2,7 +2,7 @@ import path from 'path'
 
 export default {
   target: 'web',
-  entry: './src/main.js',
+  entry: './src/App.js',
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist')
@@ -39,6 +39,16 @@ export default {
   devServer: {
     contentBase: path.join(__dirname, '/'),
     compress: true,
-    port: 3000
+    port: 3000,
+    proxy: {
+      '*': {
+        bypass: function (req, res, proxyOptions) {
+          const url = req.url
+          if (!/.css|.js/.test(url)) {
+            return '/'
+          }
+        }
+      }
+    }
   }
 }

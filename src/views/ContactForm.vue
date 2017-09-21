@@ -31,7 +31,7 @@
       </div>
       <div class="form-group">
         <div class="col-sm-offset-4 col-sm-3">
-          <button @click="isModify ? modifyContact() : createContact()" type="submit" class="btn btn-outline btn-lg btn-block">Submit</button>
+          <button @click="isModify ? clickModify() : clickCreate()" type="submit" class="btn btn-outline btn-lg btn-block">Submit</button>
         </div>
         <div class="col-sm-3">
           <button @click="moveToContacts" class="btn-close-form btn btn-outline btn-lg btn-block">Cancel</button>
@@ -47,8 +47,8 @@
   import _ from 'lodash'
   import ContactHeader from '@views/includes/ContactHeader.vue'
   import ContactFooter from '@views/includes/ContactFooter.vue'
-  import localStorage from '@/utils/localStorage'
   import { isEmail } from '@/utils/common'
+  import { mapGetters, mapActions } from 'vuex'
 
   export default {
     name: 'ContactForm',
@@ -70,9 +70,12 @@
       }
     },
     mounted () {
-      const contact = localStorage.findContact(this.id)
-      if (contact) {
-        this.contact = contact
+      if (this.id) {
+        this.fetchContacts()
+        const contact = this.findContact()(this.id)
+        if (contact) {
+          this.contact = contact
+        }
       }
     },
     computed: {
@@ -81,17 +84,33 @@
       }
     },
     methods: {
-      createContact () {
+      ...mapGetters([
+        'findContact',
+        'contacts'
+      ]),
+
+      ...mapActions([
+        'fetchContacts',
+        'createContact',
+        'modifyContact'
+      ]),
+
+      clickCreate () {
         if (this.isValid()) {
-          localStorage.createContact(this.contact)
-          this.moveToContacts()
+          this.createContact({
+            contact: this.contact,
+            router: this.$router
+          })
         }
       },
 
-      modifyContact () {
+      clickModify () {
         if (this.isValid()) {
-          localStorage.modifyContact(this.contact, this.id)
-          this.moveToContacts()
+          this.modifyContact({
+            id: this.id,
+            contact: this.contact,
+            router: this.$router
+          })
         }
       },
 

@@ -12,8 +12,8 @@
     </div>
 
     <div class="contact-btn-wrapper">
-      <a :href="'#edit/' + contact.id" class="edit-contact btn btn-outline"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
-      <a href="#contacts" class="delete-contact btn btn-outline" @click="deleteContact(contact.id)">
+      <a href="#" class="edit-contact btn btn-outline" @click.prevent="moveToModify(contact.id)"><span class="glyphicon glyphicon-pencil"></span> Edit</a>
+      <a href="#" class="delete-contact btn btn-outline" @click.prevent="clickDelete(contact.id)">
         <span class="glyphicon glyphicon-trash"></span> Delete
       </a>
     </div>
@@ -23,15 +23,25 @@
 </template>
 
 <script>
+  import { mapActions } from 'vuex'
+
   export default {
     name: 'Contact',
     props: ['contact'],
     methods: {
-      deleteContact (id) {
+      ...mapActions([
+        'deleteContact'
+      ]),
+
+      clickDelete (id) {
         if (!confirm('do you want to delete the contact?')) {
           return
         }
-        this.$emit('deleteContact', id)
+        this.deleteContact({ id })
+      },
+
+      moveToModify (id) {
+        this.$router.push(`/edit/${id}`)
       }
     }
   }

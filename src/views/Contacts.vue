@@ -4,16 +4,16 @@
 
     <div class="row well">
       <div class="text-center col-sm-6">
-        <a href="#new" class="btn btn-lg btn-outline">Add Contact</a>
+        <a href="#" class="btn btn-lg btn-outline" @click.prevent="moveToCreateContact">Add Contact</a>
       </div>
       <div class="text-center col-sm-6">
-        <input type="text" class="form-control _search" placeholder="enter contact title to search." v-model="search" @keyup="searchContact">
+        <input type="text" class="form-control _search" placeholder="enter contact title to search." v-model="search" @keyup="searchKeyup">
       </div>
     </div>
 
     <ul class="media-list row _contacts-content">
       <template v-for="contact in contacts">
-        <Contact @deleteContact="deleteContact" :contact="contact"></Contact>
+        <Contact :contact="contact"></Contact>
       </template>
     </ul>
 
@@ -25,10 +25,10 @@
 </template>
 
 <script>
+  import { mapActions, mapGetters } from 'vuex'
   import ContactHeader from '@views/includes/ContactHeader.vue'
   import ContactFooter from '@views/includes/ContactFooter.vue'
   import Contact from '@views/Contact.vue'
-  import localStorage from '@/utils/localStorage'
 
   export default {
     name: 'Contacts',
@@ -39,25 +39,40 @@
     },
     data () {
       return {
-        contacts: [],
         search: ''
       }
     },
     mounted () {
-      this.contacts = localStorage.getContacts()
+      this.fetchContacts()
+    },
+    computed: {
+      ...mapGetters([
+        'contacts'
+      ])
     },
     methods: {
-      searchContact () {
+      ...mapGetters([
+        'findSearchContacts'
+      ]),
+      ...mapActions([
+        'fetchContacts',
+        'searchContact'
+      ]),
+
+      searchKeyup () {
         if (this.search.trim()) {
-          const regExp = new RegExp(this.search, 'ig')
-          this.contacts = localStorage.getContacts().filter((contact) => regExp.test(contact.name))
+          const contacts = this.findSearchContacts()(this.search)
+          this.searchContact({ contacts })
         } else {
-          this.contacts = localStorage.getContacts()
+          this.fetchContacts()
         }
       },
       deleteContact (id) {
         this.contacts = this.contacts.filter((contact) => contact.id !== id)
         localStorage.deleteContact(id)
+      },
+      moveToCreateContact () {
+        this.$router.push('/new')
       }
     }
   }
